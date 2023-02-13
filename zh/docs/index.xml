@@ -865,8 +865,8 @@ limitations under the License.
 {% endcomment %}
 -->
 &lt;h2 id="下载-apache-brpc">下载 Apache bRPC&lt;/h2>
-&lt;p>Apache bRPC 作为源工件发布。我们很高兴宣布我们的1.3.0版本已经发布如下了！&lt;/p>
-&lt;h3 id="候选版本">候选版本&lt;/h3>
+&lt;p>Apache bRPC 作为源工件发布。我们很高兴宣布我们的 1.4.0 版本已经发布如下了！&lt;/p>
+&lt;h3 id="全部版本">全部版本&lt;/h3>
 &lt;!--when pass vote, we can change it back to Release Artifacts
 -->
 &lt;table class="table table-hover sortable">
@@ -880,28 +880,34 @@ limitations under the License.
 &lt;/thead>
 &lt;tbody>
 &lt;tr>
-&lt;td>Apache bRPC 1.3.0 (tar.gz)&lt;/td>
-&lt;td>&lt;a href="https://dlcdn.apache.org/incubator/brpc/1.3.0/apache-brpc-1.3.0-incubating-src.tar.gz">tar.gz&lt;/a>&lt;/td>
-&lt;td>&lt;a href="https://downloads.apache.org/incubator/brpc/1.3.0/apache-brpc-1.3.0-incubating-src.tar.gz.sha512">SHA-512&lt;/a>&lt;/td>
-&lt;td>&lt;a href="https://downloads.apache.org/incubator/brpc/1.3.0/apache-brpc-1.3.0-incubating-src.tar.gz.asc">ASC&lt;/a>&lt;/td>
+&lt;td>Apache bRPC 1.4.0 (tar.gz)&lt;/td>
+&lt;td>&lt;a href="https://dlcdn.apache.org/brpc/1.4.0/apache-brpc-1.4.0-src.tar.gz">tar.gz&lt;/a>&lt;/td>
+&lt;td>&lt;a href="https://downloads.apache.org/brpc/1.4.0/apache-brpc-1.4.0-src.tar.gz.sha512">SHA-512&lt;/a>&lt;/td>
+&lt;td>&lt;a href="https://downloads.apache.org/brpc/1.4.0/apache-brpc-1.4.0-src.tar.gz.asc">ASC&lt;/a>&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>Apache bRPC 1.2.0 (tar.gz)&lt;/td>
-&lt;td>&lt;a href="https://dlcdn.apache.org/incubator/brpc/1.2.0/apache-brpc-1.2.0-incubating-src.tar.gz">tar.gz&lt;/a>&lt;/td>
-&lt;td>&lt;a href="https://downloads.apache.org/incubator/brpc/1.2.0/apache-brpc-1.2.0-incubating-src.tar.gz.sha512">SHA-512&lt;/a>&lt;/td>
-&lt;td>&lt;a href="https://downloads.apache.org/incubator/brpc/1.2.0/apache-brpc-1.2.0-incubating-src.tar.gz.asc">ASC&lt;/a>&lt;/td>
+&lt;td>Apache bRPC (incubating) 1.3.0 (tar.gz)&lt;/td>
+&lt;td>&lt;a href="https://dlcdn.apache.org/brpc/1.3.0/apache-brpc-1.3.0-incubating-src.tar.gz">tar.gz&lt;/a>&lt;/td>
+&lt;td>&lt;a href="https://downloads.apache.org/brpc/1.3.0/apache-brpc-1.3.0-incubating-src.tar.gz.sha512">SHA-512&lt;/a>&lt;/td>
+&lt;td>&lt;a href="https://downloads.apache.org/brpc/1.3.0/apache-brpc-1.3.0-incubating-src.tar.gz.asc">ASC&lt;/a>&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>Apache bRPC 1.1.0 (tar.gz)&lt;/td>
-&lt;td>&lt;a href="https://dlcdn.apache.org/incubator/brpc/1.1.0/apache-brpc-1.1.0-incubating-src.tar.gz">tar.gz&lt;/a>&lt;/td>
-&lt;td>&lt;a href="https://downloads.apache.org/incubator/brpc/1.1.0/apache-brpc-1.1.0-incubating-src.tar.gz.sha512">SHA-512&lt;/a>&lt;/td>
-&lt;td>&lt;a href="https://downloads.apache.org/incubator/brpc/1.1.0/apache-brpc-1.1.0-incubating-src.tar.gz.asc">ASC&lt;/a>&lt;/td>
+&lt;td>Apache bRPC (incubating) 1.2.0 (tar.gz)&lt;/td>
+&lt;td>&lt;a href="https://dlcdn.apache.org/brpc/1.2.0/apache-brpc-1.2.0-incubating-src.tar.gz">tar.gz&lt;/a>&lt;/td>
+&lt;td>&lt;a href="https://downloads.apache.org/brpc/1.2.0/apache-brpc-1.2.0-incubating-src.tar.gz.sha512">SHA-512&lt;/a>&lt;/td>
+&lt;td>&lt;a href="https://downloads.apache.org/brpc/1.2.0/apache-brpc-1.2.0-incubating-src.tar.gz.asc">ASC&lt;/a>&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>Apache bRPC 1.0.0 (tar.gz)&lt;/td>
-&lt;td>&lt;a href="https://dlcdn.apache.org/incubator/brpc/1.0.0/apache-brpc-1.0.0-incubating-src.tar.gz">tar.gz&lt;/a>&lt;/td>
-&lt;td>&lt;a href="https://downloads.apache.org/incubator/brpc/1.0.0/apache-brpc-1.0.0-incubating-src.tar.gz.sha512">SHA-512&lt;/a>&lt;/td>
-&lt;td>&lt;a href="https://downloads.apache.org/incubator/brpc/1.0.0/apache-brpc-1.0.0-incubating-src.tar.gz.asc">ASC&lt;/a>&lt;/td>
+&lt;td>Apache bRPC (incubating) 1.1.0 (tar.gz)&lt;/td>
+&lt;td>&lt;a href="https://dlcdn.apache.org/brpc/1.1.0/apache-brpc-1.1.0-incubating-src.tar.gz">tar.gz&lt;/a>&lt;/td>
+&lt;td>&lt;a href="https://downloads.apache.org/brpc/1.1.0/apache-brpc-1.1.0-incubating-src.tar.gz.sha512">SHA-512&lt;/a>&lt;/td>
+&lt;td>&lt;a href="https://downloads.apache.org/brpc/1.1.0/apache-brpc-1.1.0-incubating-src.tar.gz.asc">ASC&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Apache bRPC (incubating) 1.0.0 (tar.gz)&lt;/td>
+&lt;td>&lt;a href="https://dlcdn.apache.org/brpc/1.0.0/apache-brpc-1.0.0-incubating-src.tar.gz">tar.gz&lt;/a>&lt;/td>
+&lt;td>&lt;a href="https://downloads.apache.org/brpc/1.0.0/apache-brpc-1.0.0-incubating-src.tar.gz.sha512">SHA-512&lt;/a>&lt;/td>
+&lt;td>&lt;a href="https://downloads.apache.org/brpc/1.0.0/apache-brpc-1.0.0-incubating-src.tar.gz.asc">ASC&lt;/a>&lt;/td>
 &lt;/tr>
 &lt;!--tr>
 &lt;td>Release Notes&lt;/td>
@@ -912,8 +918,8 @@ limitations under the License.
 &lt;/tr-->
 &lt;/tbody>
 &lt;/table>
-&lt;p>选择&lt;em>tar&lt;/em>或&lt;em>zip&lt;/em>格式的源发行版，并使用相应的&lt;em>pgp&lt;/em>签名（使用&lt;a href="https://downloads.apache.org/incubator/brpc/KEYS">密钥&lt;/a>中的提交者文件）进行&lt;a href="https://www.apache.org/dyn/closer.cgi#verify">验证&lt;/a>。如果您无法做到这一点，可以使用&lt;em>md5&lt;/em>哈希文件检查下载是否已完成。&lt;/p>
-&lt;p>为了快速下载，当前的源发行版托管在镜像服务器上；较旧的源发行版在&lt;a href="https://archive.apache.org/dist/incubator/brpc/">存档&lt;/a>中。如果从镜像下载失败，请重试，第二次下载可能会成功。&lt;/p>
+&lt;p>选择源码包，并使用相应的&lt;em>pgp&lt;/em>签名（使用&lt;a href="https://downloads.apache.org/brpc/KEYS">密钥&lt;/a>中的提交者文件）进行&lt;a href="https://www.apache.org/dyn/closer.cgi#verify">验证&lt;/a>。如果您无法做到这一点，可以使用&lt;em>md5&lt;/em>哈希文件检查下载是否已完成。&lt;/p>
+&lt;p>为了快速下载，当前的源发行版托管在镜像服务器上；较旧的源发行版在&lt;a href="https://archive.apache.org/dist/brpc/">存档&lt;/a>中。如果从镜像下载失败，请重试，第二次下载可能会成功。&lt;/p>
 &lt;p>为了安全起见，哈希文件和签名文件始终托管在&lt;a href="https://www.apache.org">Apache&lt;/a>上。&lt;/p></description></item><item><title>Docs: Contribute指南</title><link>https://brpc.apache.org/zh/docs/community/contributing/</link><pubDate>Tue, 13 Sep 2022 00:00:00 +0000</pubDate><guid>https://brpc.apache.org/zh/docs/community/contributing/</guid><description>
 &lt;p>如果你遇到问题或需要新功能，欢迎&lt;a href="https://github.com/brpc/brpc/issues/new/choose">创建issue&lt;/a>。&lt;/p>
 &lt;p>如果你可以解决某个&lt;a href="https://github.com/brpc/brpc/issues">issue&lt;/a>, 欢迎发送PR。&lt;/p>
@@ -1061,7 +1067,7 @@ limitations under the License.
 &lt;h3 id="自己构建依赖的linux">自己构建依赖的Linux&lt;/h3>
 &lt;h4 id="依赖准备-2">依赖准备&lt;/h4>
 &lt;p>brpc默认会构建出静态库和共享库，因此它也需要依赖有静态库和共享库两个版本。&lt;/p>
-&lt;p>以&lt;a href="https://github.com/gflags/gflags">gflags&lt;/a>为例，它默认不够尖共享库，你需要给&lt;code>cmake&lt;/code>指定选项去改变这一行为：&lt;/p>
+&lt;p>以&lt;a href="https://github.com/gflags/gflags">gflags&lt;/a>为例，它默认不构建共享库，你需要给&lt;code>cmake&lt;/code>指定选项去改变这一行为：&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>$ cmake . -DBUILD_SHARED_LIBS&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">1&lt;/span> -DBUILD_STATIC_LIBS&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ make
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="编译brpc">编译brpc&lt;/h4>
@@ -1132,7 +1138,7 @@ limitations under the License.
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ docker run -it brpc:master /bin/bash
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="支持的依赖">支持的依赖&lt;/h2>
 &lt;h4 id="gcc-48-112">GCC: 4.8-11.2&lt;/h4>
-&lt;p>c++11被默认启用，以去除去boost的依赖（比如atomic）。&lt;/p>
+&lt;p>c++11被默认启用，以去除对boost的依赖（比如atomic）。&lt;/p>
 &lt;p>GCC7中over-aligned的问题暂时被禁止。&lt;/p>
 &lt;p>使用其他版本的gcc可能会产生编译警告，请联系我们予以修复。&lt;/p>
 &lt;p>请在makefile中给cxxflags增加&lt;code>-D__const__=&lt;/code>选项以避免&lt;a href="../bthread/thread-local/">gcc4+中的errno问题&lt;/a>.&lt;/p>
@@ -2042,6 +2048,11 @@ Apache brpc community
 &lt;td align="center" valign="middle">
 &lt;a href="https://www.ishumei.com/" target="_blank">
 &lt;img width="222px" style="margin: 0 10px;" src="https://brpc.apache.org/images/community/nextdata_logo.png">
+&lt;/a>
+&lt;/td>
+&lt;td align="center" valign="middle">
+&lt;a href="http://www.eyou.com/" target="_blank">
+&lt;img width="222px" style="margin: 0 10px;" src="https://brpc.apache.org/images/community/eyou_logo.png">
 &lt;/a>
 &lt;/td>
 &lt;/div>
