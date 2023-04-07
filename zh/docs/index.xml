@@ -140,7 +140,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 {% endcomment %}
 -->
-&lt;h2 id="apache-brpc-孵化-社区">Apache bRPC (孵化) 社区&lt;/h2>
+&lt;h2 id="apache-brpc-社区">Apache bRPC 社区&lt;/h2>
 &lt;p>每个志愿者项目的力量都来自参与其中的人。我们邀请您尽可能多或少地参与。&lt;/p>
 &lt;p>你可以：&lt;/p>
 &lt;ul>
@@ -920,7 +920,79 @@ limitations under the License.
 &lt;/table>
 &lt;p>选择源码包，并使用相应的&lt;em>pgp&lt;/em>签名（使用&lt;a href="https://downloads.apache.org/brpc/KEYS">密钥&lt;/a>中的提交者文件）进行&lt;a href="https://www.apache.org/dyn/closer.cgi#verify">验证&lt;/a>。如果您无法做到这一点，可以使用&lt;em>md5&lt;/em>哈希文件检查下载是否已完成。&lt;/p>
 &lt;p>为了快速下载，当前的源发行版托管在镜像服务器上；较旧的源发行版在&lt;a href="https://archive.apache.org/dist/brpc/">存档&lt;/a>中。如果从镜像下载失败，请重试，第二次下载可能会成功。&lt;/p>
-&lt;p>为了安全起见，哈希文件和签名文件始终托管在&lt;a href="https://www.apache.org">Apache&lt;/a>上。&lt;/p></description></item><item><title>Docs: bRPC源码解析·butex机制</title><link>https://brpc.apache.org/zh/docs/blogs/sourcecodes/butex/</link><pubDate>Tue, 14 Mar 2023 00:00:00 +0000</pubDate><guid>https://brpc.apache.org/zh/docs/blogs/sourcecodes/butex/</guid><description>
+&lt;p>为了安全起见，哈希文件和签名文件始终托管在&lt;a href="https://www.apache.org">Apache&lt;/a>上。&lt;/p></description></item><item><title>Docs: bRPC源码解析·work_stealing_queue</title><link>https://brpc.apache.org/zh/docs/blogs/sourcecodes/work_stealing_queue/</link><pubDate>Mon, 27 Mar 2023 00:00:00 +0000</pubDate><guid>https://brpc.apache.org/zh/docs/blogs/sourcecodes/work_stealing_queue/</guid><description>
+&lt;h2 id="背景">背景&lt;/h2>
+&lt;p>每个bthread_worker都有自己的work_stealing_queue，保存着待执行的bthread，当前的bthread_worker会从queue中pop数据进行处理，如果自己的queue为空，那么会尝试去其他的bthread_worker的queue中steal，所以为了避免锁的开销，brpc设计了lock-free的WorkStealingQueue。&lt;/p>
+&lt;h2 id="实现细节">实现细节&lt;/h2>
+&lt;p>&lt;img src="https://brpc.apache.org/images/docs/work_stealing_queue.PNG" alt="work_stealing_queue">
+work_stealing_queue如上图所示，push和pop在bottom侧，steal在top侧，不会发生pop和push并发的情况，可能发生并发的情况为，steal和steal，steal和push，steal和pop。&lt;/p>
+&lt;h3 id="主要接口">主要接口&lt;/h3>
+&lt;h4 id="push">push&lt;/h4>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-c++" data-lang="c++">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">bool&lt;/span> &lt;span style="color:#000">push&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#204a87;font-weight:bold">const&lt;/span> &lt;span style="color:#000">T&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">&amp;amp;&lt;/span> &lt;span style="color:#000">x&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">const&lt;/span> &lt;span style="color:#000">size_t&lt;/span> &lt;span style="color:#000">b&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">_bottom&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">load&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_relaxed&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">const&lt;/span> &lt;span style="color:#000">size_t&lt;/span> &lt;span style="color:#000">t&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">_top&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">load&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_acquire&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">b&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">&amp;gt;=&lt;/span> &lt;span style="color:#000">t&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">+&lt;/span> &lt;span style="color:#000">_capacity&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// Full queue.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#204a87">false&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">_buffer&lt;/span>&lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#000">b&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">&amp;amp;&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">_capacity&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">-&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">)]&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">x&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">_bottom&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">store&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">b&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">+&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_release&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// A
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#204a87">true&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>首先看下push，因为steal不会修改bottom，所以bottom用relax读就好，无需同步，而top会被其他bthread_worker修改，因此通过acquire可以看到其他线程release修改top前对内存做的修改；然后判断是否超过queue的容量限制；如果没有超过容量限制，那么在bottom位置写入新数据，并更新bottom；位置A的bottom写入使用release是为了保证steal和pop能看到bottom处的数据写入。&lt;/p>
+&lt;h4 id="pop">pop&lt;/h4>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-c++" data-lang="c++">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">bool&lt;/span> &lt;span style="color:#000">pop&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">T&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span> &lt;span style="color:#000">val&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">const&lt;/span> &lt;span style="color:#000">size_t&lt;/span> &lt;span style="color:#000">b&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">_bottom&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">load&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_relaxed&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">size_t&lt;/span> &lt;span style="color:#000">t&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">_top&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">load&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_relaxed&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">t&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">&amp;gt;=&lt;/span> &lt;span style="color:#000">b&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// fast check since we call pop() in each sched.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// Stale _top which is smaller should not enter this branch.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#204a87">false&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">const&lt;/span> &lt;span style="color:#000">size_t&lt;/span> &lt;span style="color:#000">newb&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">b&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">-&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">_bottom&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">store&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">newb&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_relaxed&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">atomic_thread_fence&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_seq_cst&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// A
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">t&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">_top&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">load&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_relaxed&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">t&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">&amp;gt;&lt;/span> &lt;span style="color:#000">newb&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">_bottom&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">store&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">b&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_relaxed&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#204a87">false&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span>&lt;span style="color:#000">val&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">_buffer&lt;/span>&lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#000">newb&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">&amp;amp;&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">_capacity&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">-&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">)];&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">t&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">!=&lt;/span> &lt;span style="color:#000">newb&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#204a87">true&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Single last element, compete with steal()
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">const&lt;/span> &lt;span style="color:#204a87;font-weight:bold">bool&lt;/span> &lt;span style="color:#000">popped&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">_top&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">compare_exchange_strong&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">t&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">t&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">+&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_seq_cst&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_relaxed&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">_bottom&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">store&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">b&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_relaxed&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#000">popped&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>通过relax得到的top快速判断是否为空。然后将bottom减一，为了保证同一元素不会既被pop，又被steal，所以加了seq_cst的fence，同steal配对，具体流程后面详述；然后获取top，如果top大于newb，说明queue空，此时需将bottom修改回去；然后将val设置为newb位置的数据；如果t != newb，说明队列中有不止一个数据，此时pop和steal不会竞争，因此直接返回；否则将产生竞争，如果此时top没有发生变化，即还等于t，那么说明此时没有发生steal，将top和bottom统一加一，pop的数据可用；如果top不等于t，那么说明发生了steal，此时需将bottom恢复，pop的数据不可用。&lt;/p>
+&lt;h4 id="steal">steal&lt;/h4>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-c++" data-lang="c++">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">bool&lt;/span> &lt;span style="color:#000">steal&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">T&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span> &lt;span style="color:#000">val&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">size_t&lt;/span> &lt;span style="color:#000">t&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">_top&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">load&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_acquire&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">size_t&lt;/span> &lt;span style="color:#000">b&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">_bottom&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">load&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_acquire&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">t&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">&amp;gt;=&lt;/span> &lt;span style="color:#000">b&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Permit false negative for performance considerations.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#204a87">false&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">do&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">atomic_thread_fence&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_seq_cst&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// B
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">b&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">_bottom&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">load&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_acquire&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// C
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">t&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">&amp;gt;=&lt;/span> &lt;span style="color:#000">b&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#204a87">false&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span>&lt;span style="color:#000">val&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">_buffer&lt;/span>&lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#000">t&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">&amp;amp;&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">_capacity&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">-&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">)];&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">}&lt;/span> &lt;span style="color:#204a87;font-weight:bold">while&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">!&lt;/span>&lt;span style="color:#000">_top&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">compare_exchange_strong&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">t&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">t&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">+&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_seq_cst&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">butil&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">::&lt;/span>&lt;span style="color:#000">memory_order_relaxed&lt;/span>&lt;span style="color:#000;font-weight:bold">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#204a87">true&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>然后看下steal，为了能够看到push对buffer的修改，所以这里对bottom的读取使用了acquire，而top用acquire是为了看到pop里对内存的修改。&lt;/p>
+&lt;p>然后是一个do while循环，steal的B用seq_cst是为了和pop的A配对；C对bottom的acquire读是为了如果B和C之间push进来一个数据，如果不使用acquire可能会导致看到新的bottom，而没有看到新的数据的情况；然后设置val，cas读top，如果没有发生改变，说明此时没有steal和pop在和当前线程发生竞争，那么直接返回；如果top发生改变，说明发生了竞争，那么重新进入循环，这里cas成功时使用seq_cst是为了和steal，pop的cas配对。&lt;/p>
+&lt;p>最后讲下这几个seq_cst的作用，注意，c++标准中对seq_cst的作用只是在release和acquire语义之上保证了在所有线程间有一个相同的单独全序，而保证不了内存修改的立即全局可见；即memory fence不等于可见性，memory fence保证的是可见性的顺序。&lt;/p>
+&lt;p>竞争主要为多个steal和pop竞争，此时以三个线程为例，线程1执行pop，线程2和3执行steal，队列中数据为两个，假设top = 0，bottom = 2，可能出问题的情况只能是在全局序中，线程1对bottom的修改在线程2或3的cas之前，否则两个都会被成功steal，pop不成功。&lt;/p>
+&lt;p>此时情况为，线程1的bottom为1，线程2,3的t = 0，b = 2，因为判断发现队列中有不止一个数据，所以pop返回成功。此时假设线程2成功steal，那么线程3的cas会失败，再下一次循环的时候，将会看到单独全序中之前更新过的bottom值，导致steal失败。如果不使用seq_cst的话将保证不了单独的全序，也就可能看不到之前更新过的bottom，导致既被push，又被pop的错误情况。&lt;/p></description></item><item><title>Docs: bRPC源码解析·butex机制</title><link>https://brpc.apache.org/zh/docs/blogs/sourcecodes/butex/</link><pubDate>Tue, 14 Mar 2023 00:00:00 +0000</pubDate><guid>https://brpc.apache.org/zh/docs/blogs/sourcecodes/butex/</guid><description>
+&lt;p>(作者简介：KIDGINBROOK，在昆仑芯参与训练框架开发工作)&lt;/p>
 &lt;h2 id="背景">背景&lt;/h2>
 &lt;p>由于brpc中引入了bthread，如果在bthread中使用了mutex等pthread同步原语，那么将会挂起当前pthread，导致该bthread_worker（pthread）将无法执行其他bthread，因此类似pthread和futex的关系，brpc引入butex来实现bthread粒度的挂起和唤醒以提高性能。&lt;/p>
 &lt;h2 id="实现思路">实现思路&lt;/h2>
@@ -2193,7 +2265,280 @@ Apache brpc community
 &lt;p>在&lt;a href="https://github.com/apache/brpc/graphs/contributors">bRPC贡献者&lt;/a>列表中，记录了所有为bRPC出过贡献的人，感谢的所有&lt;a href="https://github.com/apache/brpc/graphs/contributors">贡献者&lt;/a>，一起帮助 bRPC 更好地发展。&lt;/p></description></item><item><title>Docs: 安全</title><link>https://brpc.apache.org/zh/docs/community/security/</link><pubDate>Thu, 12 Aug 2021 00:00:00 +0000</pubDate><guid>https://brpc.apache.org/zh/docs/community/security/</guid><description>
 &lt;p>Apache Software Foundation 在消除其软件项目中的安全问题方面采取了严格的立场。Apache bRPC 也十分关注与其特性和功能相关的安全问题。&lt;/p>
 &lt;p>如果您对 bRPC 的安全性感到担忧，或者您发现了漏洞或潜在的威胁，请不要犹豫与 &lt;a href="http://www.apache.org/security/">Apache 安全团队&lt;/a> 联系，发送邮件至 &lt;a href="mailto:security@apache.org">security@apache.org&lt;/a>。 在邮件中请指明项目名称为 bRPC，并提供相关问题或潜在威胁的描述。同时推荐重现和复制安全问题的方法。在评估和分析调查结果后，Apache 安全团队和 bRPC 社区将直接与您回复。&lt;/p>
-&lt;p>&lt;strong>请注意&lt;/strong> 在提交安全邮件之前，请勿在公共领域披露安全电子邮件报告的安全问题。&lt;/p></description></item><item><title>Docs: ASF</title><link>https://brpc.apache.org/zh/docs/asf/</link><pubDate>Mon, 07 Nov 2022 00:00:00 +0000</pubDate><guid>https://brpc.apache.org/zh/docs/asf/</guid><description>
+&lt;p>&lt;strong>请注意&lt;/strong> 在提交安全邮件之前，请勿在公共领域披露安全电子邮件报告的安全问题。&lt;/p></description></item><item><title>Docs: 月度会</title><link>https://brpc.apache.org/zh/docs/community/monthly-meeting/</link><pubDate>Tue, 04 Apr 2023 00:00:00 +0000</pubDate><guid>https://brpc.apache.org/zh/docs/community/monthly-meeting/</guid><description>
+&lt;h3 id="月度会记录">月度会记录&lt;/h3>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>时间&lt;/th>
+&lt;th>主持人&lt;/th>
+&lt;th>会议纪要&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>2023-02&lt;/td>
+&lt;td>王伟冰&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/opzmc74yhhokox0164f2o5wv60o74nct">https://lists.apache.org/thread/opzmc74yhhokox0164f2o5wv60o74nct&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>2023-03&lt;/td>
+&lt;td>刘帅&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/38rswlzl51lqvl04bvf6ho0od8smrc4z">https://lists.apache.org/thread/38rswlzl51lqvl04bvf6ho0od8smrc4z&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table></description></item><item><title>Docs: 值班表</title><link>https://brpc.apache.org/zh/docs/community/on-call/</link><pubDate>Tue, 04 Apr 2023 00:00:00 +0000</pubDate><guid>https://brpc.apache.org/zh/docs/community/on-call/</guid><description>
+&lt;h2 id="值周工程师的职责如下">值周工程师的职责如下&lt;/h2>
+&lt;h3 id="1-查看并处理pull-request和issue列表">1. 查看并处理Pull Request和Issue列表&lt;/h3>
+&lt;ul>
+&lt;li>每天查看github上brpc项目待处理的Pull Request和Issue列表，负责问题的处理&lt;/li>
+&lt;li>包括标记issue，回复issue，关闭issue等；&lt;/li>
+&lt;li>判断issue是否是长期Issue，如果是则标记为Pending&lt;/li>
+&lt;li>判断Issue的类型，例如bug，enhancement, discussion等&lt;/li>
+&lt;li>把issue分配到熟悉该模块的贡献者(可在微信群里询问谁来负责)&lt;/li>
+&lt;/ul>
+&lt;h3 id="2-轮值时间为一周">2. 轮值时间为一周&lt;/h3>
+&lt;ul>
+&lt;li>即从周一早上到本周日晚上&lt;/li>
+&lt;/ul>
+&lt;h3 id="3-轮值结束需要">3. 轮值结束需要&lt;/h3>
+&lt;ul>
+&lt;li>编写值周report，并发送到dev@brpc.apache.org邮件群中&lt;/li>
+&lt;li>更新值周记录（brpc-website）&lt;/li>
+&lt;li>提醒下一位轮值同学&lt;/li>
+&lt;/ul>
+&lt;h3 id="4-值周顺序如下">4. 值周顺序如下&lt;/h3>
+&lt;ul>
+&lt;li>朱佳顺 @zyearn&lt;/li>
+&lt;li>李磊 @lorinlee&lt;/li>
+&lt;li>王伟冰 @wwbmmm&lt;/li>
+&lt;li>蔡道进 @cdjingit&lt;/li>
+&lt;li>何磊 @TousakaRin&lt;/li>
+&lt;li>刘帅 @serverglen&lt;/li>
+&lt;li>胡希国 @Huixxi&lt;/li>
+&lt;/ul>
+&lt;h3 id="5-值周记录如下">5. 值周记录如下&lt;/h3>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>时间(月/日/年）&lt;/th>
+&lt;th>值周人&lt;/th>
+&lt;th>值周report&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>06/21/2021 to 06/27/2021&lt;/td>
+&lt;td>李磊&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/czolsqo80jzsytqc7dp37knqwxnkymx1">https://lists.apache.org/thread/czolsqo80jzsytqc7dp37knqwxnkymx1&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>06/28/2021 to 07/04/2021&lt;/td>
+&lt;td>蔡道进&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/c05fcjdjh7473ho1ylyl98mxscmnkbv0">https://lists.apache.org/thread/c05fcjdjh7473ho1ylyl98mxscmnkbv0&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>07/05/2021 - 07/12/2021&lt;/td>
+&lt;td>何磊&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/hz1vn7358v5fslglg2cl4g8x0wtxy4lv">https://lists.apache.org/thread/hz1vn7358v5fslglg2cl4g8x0wtxy4lv&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>08/16/2021 - 08/22/2021&lt;/td>
+&lt;td>朱佳顺&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/g36jtjc3v75lfoc7m3ynzplgbqlsjjrd">https://lists.apache.org/thread/g36jtjc3v75lfoc7m3ynzplgbqlsjjrd&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>08/23/2021 - 08/29/2021&lt;/td>
+&lt;td>李磊&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/2098ndgdy6fs2b1s8tywpmz47n5swh29">https://lists.apache.org/thread/2098ndgdy6fs2b1s8tywpmz47n5swh29&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>08/30/2021 - 09/05/2021&lt;/td>
+&lt;td>蔡道进&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/wjxdomg7fp75dc0n0rmh37bkwd8w7myv">https://lists.apache.org/thread/wjxdomg7fp75dc0n0rmh37bkwd8w7myv&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>09/06/2021 - 09/12/2021&lt;/td>
+&lt;td>何磊&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/cwjtocpjbqjgndog53rqw8gs6f9c0rmo">https://lists.apache.org/thread/cwjtocpjbqjgndog53rqw8gs6f9c0rmo&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>09/20/2021 - 09/26/2021&lt;/td>
+&lt;td>李磊&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/p779y43hogv7ftckc4cqx006gv9j65r8">https://lists.apache.org/thread/p779y43hogv7ftckc4cqx006gv9j65r8&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>09/27/2021 - 10/03/2021&lt;/td>
+&lt;td>蔡道进&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/ync12fx2dwjb2l3p4yck0kodmkgzz7wd">https://lists.apache.org/thread/ync12fx2dwjb2l3p4yck0kodmkgzz7wd&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>12/13/2021 - 12/19/2021&lt;/td>
+&lt;td>蔡道进&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/mvclsy79859mrbdso1xzm6y7yz3lg6w0">https://lists.apache.org/thread/mvclsy79859mrbdso1xzm6y7yz3lg6w0&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>01/24/2022 - 02/06/2022&lt;/td>
+&lt;td>王伟冰&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/ttgqnw4hfw0qnb7swvnn2kxb5b9hkdbo">https://lists.apache.org/thread/ttgqnw4hfw0qnb7swvnn2kxb5b9hkdbo&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>04/10/2022 - 04/16/2022&lt;/td>
+&lt;td>刘帅&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/0l67lqnw0l6rgfwkvhrc168prwr7fp60">https://lists.apache.org/thread/0l67lqnw0l6rgfwkvhrc168prwr7fp60&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>04/17/2022 - 04/24/2022&lt;/td>
+&lt;td>朱佳顺&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/xwkpyonndgtp8tq4c9v4yfowqx7fg9gl">https://lists.apache.org/thread/xwkpyonndgtp8tq4c9v4yfowqx7fg9gl&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>04/25/2022 - 05/01/2022&lt;/td>
+&lt;td>李磊&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/cx7t1glptr7x7posxstsb1691h4m4mbl">https://lists.apache.org/thread/cx7t1glptr7x7posxstsb1691h4m4mbl&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>05/02/2022 - 05/15/2022&lt;/td>
+&lt;td>王伟冰&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/tgyqkhh6fqgyzcn5d56kt46hk978wogx">https://lists.apache.org/thread/tgyqkhh6fqgyzcn5d56kt46hk978wogx&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>06/06/2022 - 06/12/2022&lt;/td>
+&lt;td>何磊&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/s19p7ygnsj0bknfjvrh0wlf1mbgstxbk">https://lists.apache.org/thread/s19p7ygnsj0bknfjvrh0wlf1mbgstxbk&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>06/13/2022 - 06/19/2022&lt;/td>
+&lt;td>刘帅&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/tvqjyz6rh7jb1zcclx0lh6zrcsf9ykxr">https://lists.apache.org/thread/tvqjyz6rh7jb1zcclx0lh6zrcsf9ykxr&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>07/25/2022 - 07/31/2022&lt;/td>
+&lt;td>王伟冰&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/83scwkkfxrp6kkkoltbrn1fthfy3w0qz">https://lists.apache.org/thread/83scwkkfxrp6kkkoltbrn1fthfy3w0qz&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>08/08/2022 - 08/14/2022&lt;/td>
+&lt;td>何磊&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/jj16rzfh34yrt6o0xqfdz9wtdtzxzswq">https://lists.apache.org/thread/jj16rzfh34yrt6o0xqfdz9wtdtzxzswq&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>08/15/2022 - 08/21/2022&lt;/td>
+&lt;td>刘帅&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/jp69sm7c8fs3dkdd828qk0fsojqwwz6h">https://lists.apache.org/thread/jp69sm7c8fs3dkdd828qk0fsojqwwz6h&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>09/05/2022 - 09/12/2022&lt;/td>
+&lt;td>王伟冰&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/4jjk2hxw9s2wskccclqb8fvpqxqffnlb">https://lists.apache.org/thread/4jjk2hxw9s2wskccclqb8fvpqxqffnlb&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>09/12/2022 - 09/18/2022&lt;/td>
+&lt;td>蔡道进&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/8mo7zl0l2yrd8tp4v3kx86rnlyfk6wz4">https://lists.apache.org/thread/8mo7zl0l2yrd8tp4v3kx86rnlyfk6wz4&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>09/19/2022 - 09/25/2022&lt;/td>
+&lt;td>何磊&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/qlkr7cmwow3ob47dt80tpx0zrgzg7bdm">https://lists.apache.org/thread/qlkr7cmwow3ob47dt80tpx0zrgzg7bdm&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>09/26/2022 - 10/09/2022&lt;/td>
+&lt;td>刘帅&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/b0lwr8wyflmhqlnf0kkh1j30tgt5qw54">https://lists.apache.org/thread/b0lwr8wyflmhqlnf0kkh1j30tgt5qw54&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>10/10/2022 - 10/16/2022&lt;/td>
+&lt;td>朱佳顺&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/y8sgbprxt21j6r0812dlftosfov6pbgk">https://lists.apache.org/thread/y8sgbprxt21j6r0812dlftosfov6pbgk&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>10/17/2022 - 10/23/2022&lt;/td>
+&lt;td>李磊&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/qn2270p9qsrglkh7oy013ts1zk5rlhwx">https://lists.apache.org/thread/qn2270p9qsrglkh7oy013ts1zk5rlhwx&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>10/24/2022 - 10/30/2022&lt;/td>
+&lt;td>王伟冰&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/k74155opmwmopgtsqo6p79z9q0f0sv8j">https://lists.apache.org/thread/k74155opmwmopgtsqo6p79z9q0f0sv8j&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>10/31/2022 - 11/06/2022&lt;/td>
+&lt;td>蔡道进&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/t4z49yt7ymp4vr5sms0m4cpoo94db4oz">https://lists.apache.org/thread/t4z49yt7ymp4vr5sms0m4cpoo94db4oz&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>11/14/2022 - 11/20/2022&lt;/td>
+&lt;td>刘帅&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/nq50fp79ox3follc7gxp814cvcqnmqzz">https://lists.apache.org/thread/nq50fp79ox3follc7gxp814cvcqnmqzz&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>11/21/2022 - 11/27/2022&lt;/td>
+&lt;td>朱佳顺&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/57kzov5g3j4vv6l2zcyw0msm36qglc8k">https://lists.apache.org/thread/57kzov5g3j4vv6l2zcyw0msm36qglc8k&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>11/28/2022 - 12/04/2022&lt;/td>
+&lt;td>李磊&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/92hbzcd662slj75v3ndjf69o1dgsnd6o">https://lists.apache.org/thread/92hbzcd662slj75v3ndjf69o1dgsnd6o&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>12/05/2022 - 12/11/2022&lt;/td>
+&lt;td>王伟冰&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/99o15h9hk5dd73jv8wyp49l8mbw0j611">https://lists.apache.org/thread/99o15h9hk5dd73jv8wyp49l8mbw0j611&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>12/19/2022 - 12/25/2022&lt;/td>
+&lt;td>何磊&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/g1stjjo1mc9ds47do6gosrw5k6wwb9mj">https://lists.apache.org/thread/g1stjjo1mc9ds47do6gosrw5k6wwb9mj&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>12/26/2022 - 01/01/2023&lt;/td>
+&lt;td>刘帅&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/3xw1gkobqmvr6oo375x3gsfcqvg80n23">https://lists.apache.org/thread/3xw1gkobqmvr6oo375x3gsfcqvg80n23&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>01/02/2023 - 01/08/2023&lt;/td>
+&lt;td>朱佳顺&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/sm4f209c8ltols04gpmzo386b02dyc9s">https://lists.apache.org/thread/sm4f209c8ltols04gpmzo386b02dyc9s&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>01/09/2023 - 01/15/2023&lt;/td>
+&lt;td>李磊&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/fydjz4h88omsrb7fzw65wl64kh5r520s">https://lists.apache.org/thread/fydjz4h88omsrb7fzw65wl64kh5r520s&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>01/16/2023 - 01/29/2023&lt;/td>
+&lt;td>王伟冰&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/k5bb4pn2v23dksmwpwqphzlc4bd92ndr">https://lists.apache.org/thread/k5bb4pn2v23dksmwpwqphzlc4bd92ndr&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>01/30/2023 - 02/05/2023&lt;/td>
+&lt;td>蔡道进&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/4scwpdh163l92czm5pvc7ox78n44mrn4">https://lists.apache.org/thread/4scwpdh163l92czm5pvc7ox78n44mrn4&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>02/13/2023 - 02/19/2023&lt;/td>
+&lt;td>刘帅&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/jwynp880hdhcfkqwq7thsm05y037wzy5">https://lists.apache.org/thread/jwynp880hdhcfkqwq7thsm05y037wzy5&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>02/27/2023 - 03/05/2023&lt;/td>
+&lt;td>李磊&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/94ndftsvooydfnn8hdddv294pp0tfvdm">https://lists.apache.org/thread/94ndftsvooydfnn8hdddv294pp0tfvdm&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>03/06/2023 - 03/12/2023&lt;/td>
+&lt;td>王伟冰&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/bv3qw5w8gj9xs576fplxqhktopkbk7md">https://lists.apache.org/thread/bv3qw5w8gj9xs576fplxqhktopkbk7md&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>03/27/2023 - 04/03/2023&lt;/td>
+&lt;td>刘帅&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/fk37cn8r5pd1y10vjvzvkl211b67vn4q">https://lists.apache.org/thread/fk37cn8r5pd1y10vjvzvkl211b67vn4q&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table></description></item><item><title>Docs: ASF</title><link>https://brpc.apache.org/zh/docs/asf/</link><pubDate>Mon, 07 Nov 2022 00:00:00 +0000</pubDate><guid>https://brpc.apache.org/zh/docs/asf/</guid><description>
 &lt;h2 id="apache-软件基金会">Apache 软件基金会&lt;/h2>
 &lt;ul>
 &lt;li>&lt;a href="https://www.apache.org/">基金会&lt;/a>&lt;/li>
