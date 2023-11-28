@@ -161,7 +161,7 @@ limitations under the License.
 -->
 &lt;h2 id="apache-brpc-downloads">Apache bRPC Downloads&lt;/h2>
 &lt;p>Apache bRPC is released as a source artifact.
-We are pleased to announce our 1.5.0 release as below.&lt;/p>
+We are pleased to announce our 1.7.0 release as below.&lt;/p>
 &lt;h3 id="all-release">All Release&lt;/h3>
 &lt;!--when pass vote, we can change it back to Release Artifacts
 -->
@@ -175,6 +175,24 @@ We are pleased to announce our 1.5.0 release as below.&lt;/p>
 &lt;/tr>
 &lt;/thead>
 &lt;tbody>
+&lt;tr>
+&lt;td>Apache bRPC 1.7.0 (tar.gz)&lt;/td>
+&lt;td>&lt;a href="https://dlcdn.apache.org/brpc/1.7.0/apache-brpc-1.7.0-src.tar.gz">tar.gz&lt;/a>&lt;/td>
+&lt;td>&lt;a href="https://downloads.apache.org/brpc/1.7.0/apache-brpc-1.7.0-src.tar.gz.sha512">SHA-512&lt;/a>&lt;/td>
+&lt;td>&lt;a href="https://downloads.apache.org/brpc/1.7.0/apache-brpc-1.7.0-src.tar.gz.asc">ASC&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Apache bRPC 1.6.1 (tar.gz)&lt;/td>
+&lt;td>&lt;a href="https://dlcdn.apache.org/brpc/1.6.1/apache-brpc-1.6.1-src.tar.gz">tar.gz&lt;/a>&lt;/td>
+&lt;td>&lt;a href="https://downloads.apache.org/brpc/1.6.1/apache-brpc-1.6.1-src.tar.gz.sha512">SHA-512&lt;/a>&lt;/td>
+&lt;td>&lt;a href="https://downloads.apache.org/brpc/1.6.1/apache-brpc-1.6.1-src.tar.gz.asc">ASC&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Apache bRPC 1.6.0 (tar.gz)&lt;/td>
+&lt;td>&lt;a href="https://dlcdn.apache.org/brpc/1.6.0/apache-brpc-1.6.0-src.tar.gz">tar.gz&lt;/a>&lt;/td>
+&lt;td>&lt;a href="https://downloads.apache.org/brpc/1.6.0/apache-brpc-1.6.0-src.tar.gz.sha512">SHA-512&lt;/a>&lt;/td>
+&lt;td>&lt;a href="https://downloads.apache.org/brpc/1.6.0/apache-brpc-1.6.0-src.tar.gz.asc">ASC&lt;/a>&lt;/td>
+&lt;/tr>
 &lt;tr>
 &lt;td>Apache bRPC 1.5.0 (tar.gz)&lt;/td>
 &lt;td>&lt;a href="https://dlcdn.apache.org/brpc/1.5.0/apache-brpc-1.5.0-src.tar.gz">tar.gz&lt;/a>&lt;/td>
@@ -420,7 +438,7 @@ succeed.&lt;/p>
 &lt;h4 id="protobuf-24">protobuf: 2.4+&lt;/h4>
 &lt;p>Be compatible with pb 3.x and pb 2.x with the same file:
 Don&amp;rsquo;t use new types in proto3 and start the proto file with &lt;code>syntax=&amp;quot;proto2&amp;quot;;&lt;/code>
-&lt;a href="https://github.com/brpc/brpc/blob/master/tools/add_syntax_equal_proto2_to_all.sh">tools/add_syntax_equal_proto2_to_all.sh&lt;/a>can add &lt;code>syntax=&amp;quot;proto2&amp;quot;&lt;/code> to all proto files without it.&lt;/p>
+&lt;a href="https://github.com/brpc/brpc/blob/master/tools/add_syntax_equal_proto2_to_all.sh">tools/add_syntax_equal_proto2_to_all.sh&lt;/a> can add &lt;code>syntax=&amp;quot;proto2&amp;quot;&lt;/code> to all proto files without it.&lt;/p>
 &lt;p>Arena in pb 3.x is not supported yet.&lt;/p>
 &lt;h4 id="gflags-20-221">gflags: 2.0-2.2.1&lt;/h4>
 &lt;p>no known issues.&lt;/p>
@@ -436,7 +454,7 @@ Don&amp;rsquo;t use new types in proto3 and start the proto file with &lt;code>s
 &lt;p>If you want to use &lt;a href="../builtin-services/cpu_profiler">cpu profiler&lt;/a> or &lt;a href="../builtin-services/heap_profiler">heap profiler&lt;/a>, do link &lt;code>libtcmalloc_and_profiler.a&lt;/code>. These two profilers are based on tcmalloc. &lt;a href="../builtin-services/contention_profiler">contention profiler&lt;/a> does not require tcmalloc.&lt;/p>
 &lt;p>When you remove tcmalloc, not only remove the linkage with tcmalloc but also the macro &lt;code>-DBRPC_ENABLE_CPU_PROFILER&lt;/code>.&lt;/p>
 &lt;h4 id="glog-33">glog: 3.3+&lt;/h4>
-&lt;p>brpc implements a default &lt;a href="../../src/butil/logging.h">logging utility&lt;/a> which conflicts with glog. To replace this with glog, add &lt;em>&amp;ndash;with-glog&lt;/em> to config_brpc.sh or add &lt;code>-DWITH_GLOG=ON&lt;/code> to cmake.&lt;/p>
+&lt;p>brpc implements a default &lt;a href="../../src/butil/logging.h">logging utility&lt;/a> which conflicts with glog. To replace this with glog, add &lt;code>--with-glog&lt;/code> to config_brpc.sh or add &lt;code>-DWITH_GLOG=ON&lt;/code> to cmake.&lt;/p>
 &lt;h4 id="valgrind-38">valgrind: 3.8+&lt;/h4>
 &lt;p>brpc detects valgrind automatically (and registers stacks of bthread). Older valgrind(say 3.2) is not supported.&lt;/p>
 &lt;h4 id="thrift-093-0110">thrift: 0.9.3-0.11.0&lt;/h4>
@@ -844,7 +862,7 @@ sub rsa4096 2021-10-17 [E]
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87">cd&lt;/span> ~/brpc_svn/dev/
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>svn --username&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>lorinlee co https://dist.apache.org/repos/dist/dev/incubator/brpc/
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>svn --username&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>lorinlee co https://dist.apache.org/repos/dist/dev/brpc/
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87">cd&lt;/span> ~/brpc_svn/dev/brpc
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="2-add-gpg-public-key">2. Add GPG public key&lt;/h3>
@@ -872,7 +890,7 @@ sub rsa4096 2021-10-17 [E]
 &lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>sha512sum --check apache-brpc-1.0.0-incubating-src.tar.gz.sha512
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="2-verify-gpg-signature">2. Verify GPG signature&lt;/h3>
 &lt;p>First import the publisher&amp;rsquo;s public key. Import KEYS from the svn repository to the local. (The person who releases the version does not need to import it again. The person who verify needs to import it.)&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>curl https://dist.apache.org/repos/dist/dev/incubator/brpc/KEYS &amp;gt;&amp;gt; KEYS
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>curl https://dist.apache.org/repos/dist/dev/brpc/KEYS &amp;gt;&amp;gt; KEYS
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>gpg --import KEYS
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Trust the signature of publisher, execute the following command using the publisher&amp;rsquo;s user name&lt;/p>
@@ -996,9 +1014,9 @@ LorinLee
 &lt;p>If the community vote is not passed, please modify the code of the release branch, package and vote again.&lt;/p>
 &lt;h2 id="vote-in-apache-incubator-community">Vote in Apache incubator community&lt;/h2>
 &lt;h3 id="1-update-gpg-signature">1. Update GPG Signature&lt;/h3>
-&lt;pre tabindex="0">&lt;code>svn delete https://dist.apache.org/repos/dist/release/incubator/brpc/KEYS -m &amp;#34;delete KEYS&amp;#34;
-svn cp https://dist.apache.org/repos/dist/dev/incubator/brpc/KEYS https://dist.apache.org/repos/dist/release/incubator/brpc/KEYS -m &amp;#34;update brpc KEYS&amp;#34;
-&lt;/code>&lt;/pre>&lt;p>After commit the svn, access &lt;a href="https://downloads.apache.org/incubator/brpc/KEYS">https://downloads.apache.org/incubator/brpc/KEYS&lt;/a>, check whether the content is updated. It may take several minutes to wait for the content to be updated before continuing.&lt;/p>
+&lt;pre tabindex="0">&lt;code>svn delete https://dist.apache.org/repos/dist/release/brpc/KEYS -m &amp;#34;delete KEYS&amp;#34;
+svn cp https://dist.apache.org/repos/dist/dev/brpc/KEYS https://dist.apache.org/repos/dist/release/brpc/KEYS -m &amp;#34;update brpc KEYS&amp;#34;
+&lt;/code>&lt;/pre>&lt;p>After commit the svn, access &lt;a href="https://downloads.apache.org/brpc/KEYS">https://downloads.apache.org/brpc/KEYS&lt;/a>, check whether the content is updated. It may take several minutes to wait for the content to be updated before continuing.&lt;/p>
 &lt;h3 id="2-vote-stage">2. Vote stage&lt;/h3>
 &lt;ol>
 &lt;li>Send voting email to &lt;code>general@incubator.apache.org&lt;/code>. IPMC will vote. After at least 72 hours and 3 +1 IPMC member tickets are counted, you can move to the next stage.&lt;/li>
@@ -1069,7 +1087,7 @@ Lorin Lee
 Apache brpc community
 &lt;/code>&lt;/pre>&lt;h2 id="finish-the-release">Finish the release&lt;/h2>
 &lt;h3 id="1-move-the-release-package-from-apache-svn-directory-distdev-to-distrelease">1. Move the release package from Apache SVN directory dist/dev to dist/release&lt;/h3>
-&lt;pre tabindex="0">&lt;code>svn mv https://dist.apache.org/repos/dist/dev/incubator/brpc/1.0.0 https://dist.apache.org/repos/dist/release/incubator/brpc/1.0.0 -m &amp;#34;release brpc 1.0.0&amp;#34;
+&lt;pre tabindex="0">&lt;code>svn mv https://dist.apache.org/repos/dist/dev/brpc/1.0.0 https://dist.apache.org/repos/dist/release/brpc/1.0.0 -m &amp;#34;release brpc 1.0.0&amp;#34;
 &lt;/code>&lt;/pre>&lt;h3 id="2-create-github-release">2. Create github release&lt;/h3>
 &lt;ol>
 &lt;li>On the &lt;a href="https://github.com/apache/brpc/tags">GitHub Releases page&lt;/a> Click the corresponding version of to create a new Release&lt;/li>
@@ -1077,8 +1095,8 @@ Apache brpc community
 &lt;/ol>
 &lt;h3 id="3-update-download-page">3. Update download page&lt;/h3>
 &lt;p>After waiting and confirming that the new release is synchronized to the Apache image, update the following page: &lt;a href="https://brpc.apache.org/docs/downloadbrpc/">https://brpc.apache.org/docs/downloadbrpc/&lt;/a> by change the code in &lt;a href="https://github.com/apache/brpc-website/">https://github.com/apache/brpc-website/&lt;/a>. Please update both Chinese and English.&lt;/p>
-&lt;p>The download links of GPG signature files and hash check files should use this prefix: &lt;code>https://downloads.apache.org/incubator/brpc/&lt;/code>&lt;/p>
-&lt;p>The download link of the code package should use this prefix: &lt;code>https://dlcdn.apache.org/incubator/brpc/&lt;/code>&lt;/p>
+&lt;p>The download links of GPG signature files and hash check files should use this prefix: &lt;code>https://downloads.apache.org/brpc/&lt;/code>&lt;/p>
+&lt;p>The download link of the code package should use this prefix: &lt;code>https://dlcdn.apache.org/brpc/&lt;/code>&lt;/p>
 &lt;h3 id="4-send-email-to-announce-release-finished">4. Send email to announce release finished&lt;/h3>
 &lt;p>Send mail to &lt;code>dev@brpc.apache.org&lt;/code>, &lt;code>general@incubator.apache.org&lt;/code>, and &lt;code>announce@apache.org&lt;/code> to announce the completion of release.&lt;/p>
 &lt;p>Note: The email account must use &lt;strong>personal apache email&lt;/strong>, and the email content must be &lt;strong>plain text format&lt;/strong> (&amp;ldquo;plain text mode&amp;rdquo; can be selected in gmail). And email to &lt;code>announce@apache.org&lt;/code> mail group will be delivered after manual review. Please wait patiently after sending the email, and it will be passed within one day.&lt;/p>
@@ -1681,6 +1699,86 @@ Determine the type of Issue, e.g. bug, enhancement, discussion, etc&lt;/li>
 &lt;td>04/24/2023 - 05/07/2023&lt;/td>
 &lt;td>Wang Weibing&lt;/td>
 &lt;td>&lt;a href="https://lists.apache.org/thread/25ocwx3n7kvmj0fd5zz5slwd0smt59r2">https://lists.apache.org/thread/25ocwx3n7kvmj0fd5zz5slwd0smt59r2&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>05/08/2023 - 05/14/2023&lt;/td>
+&lt;td>Cai Daojin&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/676w7087klhsb2hwn9q2p5sj541frgpl">https://lists.apache.org/thread/676w7087klhsb2hwn9q2p5sj541frgpl&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>05/22/2023 - 05/28/2023&lt;/td>
+&lt;td>Liu Shuai&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/m2cpr83h5l1gpznowxhf58lrxndok1lp">https://lists.apache.org/thread/m2cpr83h5l1gpznowxhf58lrxndok1lp&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>06/19/2023 - 06/25/2023&lt;/td>
+&lt;td>Wang Weibing&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/jto9mzcbsxw3273xrgwd116vvdl3o1gx">https://lists.apache.org/thread/jto9mzcbsxw3273xrgwd116vvdl3o1gx&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>06/26/2023 - 07/02/2023&lt;/td>
+&lt;td>Cai Daojin&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/rzkdbo5ojff9grs2bowwl95n0fsb4zts">https://lists.apache.org/thread/rzkdbo5ojff9grs2bowwl95n0fsb4zts&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>07/03/2023 - 07/10/2023&lt;/td>
+&lt;td>He Lei&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/2kh8mq2wn4g0vzdn1czb7nj4t8l2hj9v">https://lists.apache.org/thread/2kh8mq2wn4g0vzdn1czb7nj4t8l2hj9v&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>07/10/2023 - 07/16/2023&lt;/td>
+&lt;td>Liu Shuai&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/z6jcyqsy31rf1r626kjx2d2sykwtvhqz">https://lists.apache.org/thread/z6jcyqsy31rf1r626kjx2d2sykwtvhqz&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>08/07/2023 - 08/13/2023&lt;/td>
+&lt;td>Lei Li&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/g2tz50ymsvv3xb2dl3bjot1rfdp74rkj">https://lists.apache.org/thread/g2tz50ymsvv3xb2dl3bjot1rfdp74rkj&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>08/21/2023 - 09/03/2023&lt;/td>
+&lt;td>Cai Daojin&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/f63wnl45l1s3v61681m9tgfpkr6dxptx">https://lists.apache.org/thread/f63wnl45l1s3v61681m9tgfpkr6dxptx&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>09/18/2023 - 09/24/2023&lt;/td>
+&lt;td>Liu Shuai&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/v4po2bwzn3fb7w7qbxfn8hgqzthyqb4b">https://lists.apache.org/thread/v4po2bwzn3fb7w7qbxfn8hgqzthyqb4b&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>09/25/2023 - 10/08/2023&lt;/td>
+&lt;td>Xiguo Hu&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/lz3n9nt8xpp7kfb39zxp8m5cjl3dcpbt">https://lists.apache.org/thread/lz3n9nt8xpp7kfb39zxp8m5cjl3dcpbt&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>10/16/2023 - 10/22/2023&lt;/td>
+&lt;td>Lei Li&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/ylkbpgwp1qv7bs1z1dbxw31lk9o2vqod">https://lists.apache.org/thread/ylkbpgwp1qv7bs1z1dbxw31lk9o2vqod&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>10/23/2023 - 10/29/2023&lt;/td>
+&lt;td>Wang Weibing&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/pq87hnf6tdhx0lrdnqpv3dk4tr8wyyrd">https://lists.apache.org/thread/pq87hnf6tdhx0lrdnqpv3dk4tr8wyyrd&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>10/30/2023 - 11/05/2023&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>11/06/2023 - 11/12/2023&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>11/13/2023 - 11/19/2023&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>11/20/2023 - 11/26/2023&lt;/td>
+&lt;td>Xiguo Hu&lt;/td>
+&lt;td>&lt;a href="https://lists.apache.org/thread/7hhg555ykcq2sfh0qm71vp9pn4tvb39s">https://lists.apache.org/thread/7hhg555ykcq2sfh0qm71vp9pn4tvb39s&lt;/a>&lt;/td>
 &lt;/tr>
 &lt;/tbody>
 &lt;/table></description></item><item><title>Docs: bRPC 1.1.0</title><link>https://brpc.apache.org/docs/blogs/releases/1.1.0/</link><pubDate>Tue, 12 Apr 2022 00:00:00 +0000</pubDate><guid>https://brpc.apache.org/docs/blogs/releases/1.1.0/</guid><description>
