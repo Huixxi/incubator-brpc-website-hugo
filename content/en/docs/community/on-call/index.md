@@ -83,3 +83,19 @@ Determine the type of Issue, e.g. bug, enhancement, discussion, etc
 | 04/10/2023 - 04/17/2023  | Zhu Jiashun | https://lists.apache.org/thread/l0l1402r8yz7kl2w4hwc835rc1n5o22c 
 | 04/17/2023 - 04/23/2023  | Lei Li | https://lists.apache.org/thread/3gobs94vogdjg6pmkvbk5kst4z9xbdw9
 | 04/24/2023 - 05/07/2023  | Wang Weibing | https://lists.apache.org/thread/25ocwx3n7kvmj0fd5zz5slwd0smt59r2
+| 05/08/2023 - 05/14/2023  | Cai Daojin | https://lists.apache.org/thread/676w7087klhsb2hwn9q2p5sj541frgpl
+| 05/22/2023 - 05/28/2023  | Liu Shuai | https://lists.apache.org/thread/m2cpr83h5l1gpznowxhf58lrxndok1lp
+| 06/19/2023 - 06/25/2023  | Wang Weibing | https://lists.apache.org/thread/jto9mzcbsxw3273xrgwd116vvdl3o1gx
+| 06/26/2023 - 07/02/2023  | Cai Daojin | https://lists.apache.org/thread/rzkdbo5ojff9grs2bowwl95n0fsb4zts
+| 07/03/2023 - 07/10/2023  | He Lei | https://lists.apache.org/thread/2kh8mq2wn4g0vzdn1czb7nj4t8l2hj9v
+| 07/10/2023 - 07/16/2023  | Liu Shuai | https://lists.apache.org/thread/z6jcyqsy31rf1r626kjx2d2sykwtvhqz
+| 08/07/2023 - 08/13/2023  | Lei Li | https://lists.apache.org/thread/g2tz50ymsvv3xb2dl3bjot1rfdp74rkj
+| 08/21/2023 - 09/03/2023  | Cai Daojin | https://lists.apache.org/thread/f63wnl45l1s3v61681m9tgfpkr6dxptx
+| 09/18/2023 - 09/24/2023  | Liu Shuai | https://lists.apache.org/thread/v4po2bwzn3fb7w7qbxfn8hgqzthyqb4b
+| 09/25/2023 - 10/08/2023  | Xiguo Hu | https://lists.apache.org/thread/lz3n9nt8xpp7kfb39zxp8m5cjl3dcpbt
+| 10/16/2023 - 10/22/2023  | Lei Li | https://lists.apache.org/thread/ylkbpgwp1qv7bs1z1dbxw31lk9o2vqod
+| 10/23/2023 - 10/29/2023  | Wang Weibing | https://lists.apache.org/thread/pq87hnf6tdhx0lrdnqpv3dk4tr8wyyrd
+| 10/30/2023 - 11/05/2023  |  |
+| 11/06/2023 - 11/12/2023  |  |
+| 11/13/2023 - 11/19/2023  |  |
+| 11/20/2023 - 11/26/2023  | Xiguo Hu | https://lists.apache.org/thread/7hhg555ykcq2sfh0qm71vp9pn4tvb39s
